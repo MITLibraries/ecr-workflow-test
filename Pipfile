@@ -20,4 +20,4 @@ pip-audit = "*"
 python_version = "3.12"
 
 [scripts]
-my_app = "python -c \"from my_app.cli import main; main()\""
+ecr_test = "python -c \"from ecr_test.cli import main; main()\""
