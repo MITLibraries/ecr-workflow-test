@@ -1,0 +1,29 @@
+### This is the Terraform-generated dev-build.yml workflow for the ecr-workflow-test-dev app repository ###
+### If this is a Lambda repo, uncomment the FUNCTION line at the end of the document     ###
+### If the container requires any additional pre-build commands, uncomment and edit      ###
+### the PREBUILD line at the end of the document.                                        ###
+name: Dev Container Build and Deploy
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - '.github/**'
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    name: Dev Container Deploy
+    uses: mitlibraries/.github/.github/workflows/ecr-multi-arch-deploy-dev.yml@multi-arch-deploy
+    secrets: inherit
+    with:
+      AWS_REGION: "us-east-1"
+      GHA_ROLE: "ecr-workflow-test-gha-dev"
+      ECR: "ecr-workflow-test-dev"
+      CPU_ARCH: "linux/arm64"
+      # FUNCTION: ""
+      # PREBUILD: 
