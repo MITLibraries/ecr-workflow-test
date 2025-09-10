@@ -83,7 +83,7 @@ my-app: # CLI without any arguments, utilizing uv script entrypoint
 
 ### Terraform-generated Developer Deploy Commands for Dev environment ###
 dist-dev: ## Build docker container (intended for developer-based manual build)
-	docker build --platform $(CPU_ARCH) \
+	docker buildx create --use && docker buildx build --platform $(CPU_ARCH) \
 	    -t $(ECR_URL_DEV):latest \
 		-t $(ECR_URL_DEV):`git describe --always` \
 		-t $(ECR_NAME_DEV):latest .
