@@ -24,6 +24,6 @@ jobs:
       AWS_REGION: "us-east-1"
       GHA_ROLE: "ecr-workflow-test-gha-dev"
       ECR: "ecr-workflow-test-dev"
-      CPU_ARCH: "linux/arm64"
+      CPU_ARCH: "linux/amd64"
       # FUNCTION: ""
       # PREBUILD: 
