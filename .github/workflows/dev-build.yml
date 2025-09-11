@@ -16,7 +16,29 @@ permissions:
   contents: read
 
 jobs:
+  prep:
+    runs-on: ubuntu-latest
+    outputs: 
+      cpuarch: ${{ steps.setarch.outputs.cpuarch }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set CPU Architecture
+        id: setarch
+        run: |
+          ARCH=$(cat .aws-architecture)
+          if [[ "$ARCH" != "linux/arm64" && "$ARCH" != "linux/amd64" ]]; then
+            echo "$ARCH is INVALID architecture!"
+            exit 1
+          fi
+          echo "cpuarch=$ARCH" >> $GITHUB_OUTPUT
+          echo "### Architecture Selected" >> $GITHUB_STEP_SUMMARY
+          echo "\`$ARCH\` was read from \`.aws-architecture\` and passed to the deploy job." >> $GITHUB_STEP_SUMMARY
+
+
   deploy:
+    needs: prep
     name: Dev Container Deploy
     uses: mitlibraries/.github/.github/workflows/ecr-multi-arch-deploy-dev.yml@multi-arch-deploy
     secrets: inherit
@@ -24,6 +46,6 @@ jobs:
       AWS_REGION: "us-east-1"
       GHA_ROLE: "ecr-workflow-test-gha-dev"
       ECR: "ecr-workflow-test-dev"
-      CPU_ARCH: "linux/arm64"
+      CPU_ARCH: ${{ needs.prep.outputs.cpuarch }}
       # FUNCTION: ""
       # PREBUILD: 

@@ -3,9 +3,9 @@ DATETIME:=$(shell date -u +%Y%m%dT%H%M%SZ)
 ### This is the Terraform-generated header for ecr-workflow-test-dev. If  ###
 ###   this is a Lambda repo, uncomment the FUNCTION line below            ###
 ###   and review the other commented lines in the document.               ###
-ECR_NAME_DEV:=ecr-workflow-test-dev
-ECR_URL_DEV:=222053980223.dkr.ecr.us-east-1.amazonaws.com/ecr-workflow-test-dev
-CPU_ARCH:=linux/arm64
+ECR_NAME_DEV := ecr-workflow-test-dev
+ECR_URL_DEV := 222053980223.dkr.ecr.us-east-1.amazonaws.com/ecr-workflow-test-dev
+CPU_ARCH ?= $(shell cat .aws-architecture)
 ### End of Terraform-generated header                                     ###
 
 help: # Preview Makefile commands
