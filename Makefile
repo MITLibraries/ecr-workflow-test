@@ -91,7 +91,7 @@ dist-dev: ## Build docker container (intended for developer-based manual build)
 publish-dev: dist-dev ## Build, tag and push (intended for developer-based manual publish)
 	docker login -u AWS -p $$(aws ecr get-login-password --region us-east-1) $(ECR_URL_DEV)
 	docker push $(ECR_URL_DEV):latest
-	docker push $(ECR_URL_DEV):`git describe --always`
+	docker push $(ECR_URL_DEV):$(git describe --always)
 
 
 ### Terraform-generated manual shortcuts for deploying to Stage. This requires  ###
