@@ -27,14 +27,20 @@ jobs:
       - name: Set CPU Architecture
         id: setarch
         run: |
-          ARCH=$(cat .aws-architecture)
+          echo "### Architecture Selection" >> $GITHUB_STEP_SUMMARY
+          if [[ -f .aws-architecture ]]; then
+            ARCH=$(cat .aws-architecture)
+            echo "\`$ARCH\` was read from \`.aws-architecture\` and passed to the deploy job." >> $GITHUB_STEP_SUMMARY
+          else
+            ARCH="linux/amd64"
+            echo "No \`.aws-architecture\` file, so default \`$ARCH\` was passed to the deploy job." >> $GITHUB_STEP_SUMMARY
+          fi
           if [[ "$ARCH" != "linux/arm64" && "$ARCH" != "linux/amd64" ]]; then
             echo "$ARCH is INVALID architecture!"
+            echo "$ARCH is INVALID architecture!" >> $GITHUB_STEP_SUMMARY
             exit 1
           fi
           echo "cpuarch=$ARCH" >> $GITHUB_OUTPUT
-          echo "### Architecture Selected" >> $GITHUB_STEP_SUMMARY
-          echo "\`$ARCH\` was read from \`.aws-architecture\` and passed to the deploy job." >> $GITHUB_STEP_SUMMARY
 
   deploy:
     needs: prep
