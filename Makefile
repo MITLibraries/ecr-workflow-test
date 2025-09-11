@@ -99,15 +99,15 @@ publish-dev: dist-dev ## Build, tag and push (intended for developer-based manua
 ###   authenticated to the correct AWS Account. The values for the environment  ###
 ###   variables can be found in the stage_build.yml caller workflow.            ###
 dist-stage: ## Only use in an emergency
-	docker build --platform $(CPU_ARCH) \
+	docker buildx create --use && docker buildx build --platform $(CPU_ARCH) \
 	    -t $(ECR_URL_STAGE):latest \
-		-t $(ECR_URL_STAGE):`git describe --always` \
+		-t $(ECR_URL_STAGE):$(shell git describe --always) \
 		-t $(ECR_NAME_STAGE):latest .
 
 publish-stage: ## Only use in an emergency
 	docker login -u AWS -p $$(aws ecr get-login-password --region us-east-1) $(ECR_URL_STAGE)
 	docker push $(ECR_URL_STAGE):latest
-	docker push $(ECR_URL_STAGE):`git describe --always`
+	docker push $(ECR_URL_STAGE):$(shell git describe --always)
 
 ### If this is a Lambda repo, uncomment the two lines below     ###
 # update-lambda-stage: ## Updates the lambda with whatever is the most recent image in the ecr (intended for developer-based manual update)
