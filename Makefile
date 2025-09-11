@@ -80,18 +80,17 @@ my-app: # CLI without any arguments, utilizing uv script entrypoint
 	uv run my-app
 
 
-
 ### Terraform-generated Developer Deploy Commands for Dev environment ###
 dist-dev: ## Build docker container (intended for developer-based manual build)
 	docker buildx create --use && docker buildx build --platform $(CPU_ARCH) \
 	    -t $(ECR_URL_DEV):latest \
-		-t $(ECR_URL_DEV):`git describe --always` \
+		-t $(ECR_URL_DEV):$(shell git describe --always) \
 		-t $(ECR_NAME_DEV):latest .
 
 publish-dev: dist-dev ## Build, tag and push (intended for developer-based manual publish)
 	docker login -u AWS -p $$(aws ecr get-login-password --region us-east-1) $(ECR_URL_DEV)
 	docker push $(ECR_URL_DEV):latest
-	docker push $(ECR_URL_DEV):$(git describe --always)
+	docker push $(ECR_URL_DEV):$(shell git describe --always)
 
 
 ### Terraform-generated manual shortcuts for deploying to Stage. This requires  ###
