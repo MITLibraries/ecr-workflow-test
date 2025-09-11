@@ -1,0 +1,25 @@
+### This is the Terraform-generated prod-promote.yml workflow for the ecr-workflow-test-prod repository. ###
+### If this is a Lambda repo, uncomment the FUNCTION line at the end of the document.         ###
+name: Prod Container Promote
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    name: Prod Container Promote
+    uses: mitlibraries/.github/.github/workflows/ecr-multi-arch-promote-prod.yml@multi-arch-deploy
+    secrets: inherit
+    with:
+      AWS_REGION: "us-east-1"
+      GHA_ROLE_STAGE: ecr-workflow-test-gha-stage
+      GHA_ROLE_PROD: ecr-workflow-test-gha-prod
+      ECR_STAGE: "ecr-workflow-test-stage"
+      ECR_PROD: "ecr-workflow-test-prod"
+      # FUNCTION: ""
+ 
