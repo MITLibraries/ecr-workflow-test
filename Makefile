@@ -5,7 +5,7 @@ DATETIME:=$(shell date -u +%Y%m%dT%H%M%SZ)
 ###   and review the other commented lines in the document.               ###
 ECR_NAME_DEV := ecr-workflow-test-dev
 ECR_URL_DEV := 222053980223.dkr.ecr.us-east-1.amazonaws.com/ecr-workflow-test-dev
-CPU_ARCH ?= $(shell cat .aws-architecture)
+CPU_ARCH ?= $(shell cat .aws-architecture 2>/dev/null || echo "linux/amd64")
 ### End of Terraform-generated header                                     ###
 
 help: # Preview Makefile commands
@@ -81,16 +81,26 @@ my-app: # CLI without any arguments, utilizing uv script entrypoint
 
 
 ### Terraform-generated Developer Deploy Commands for Dev environment ###
-dist-dev: ## Build docker container (intended for developer-based manual build)
-	docker buildx create --use && docker buildx build --platform $(CPU_ARCH) \
+check-arch:
+	@if [[ "$(CPU_ARCH)" != "linux/amd64" && "$(CPU_ARCH)" != "linux/arm64" ]]; then \
+        echo "Invalid CPU_ARCH: $(CPU_ARCH)"; exit 1; \
+    fi
+
+dist-dev: check-arch ## Build docker container (intended for developer-based manual build
+	docker buildx create --use || true;
+	docker buildx build --platform $(CPU_ARCH) \
+	    --load \
 	    -t $(ECR_URL_DEV):latest \
 		-t $(ECR_URL_DEV):$(shell git describe --always) \
-		-t $(ECR_NAME_DEV):latest .
+		-t $(ECR_URL_DEV):$(shell echo $(CPU_ARCH) | cut -d'/' -f2) \
+		-t $(ECR_NAME_DEV):latest \
+		.
 
 publish-dev: dist-dev ## Build, tag and push (intended for developer-based manual publish)
-	docker login -u AWS -p $$(aws ecr get-login-password --region us-east-1) $(ECR_URL_DEV)
+	aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $(ECR_URL_DEV)
 	docker push $(ECR_URL_DEV):latest
 	docker push $(ECR_URL_DEV):$(shell git describe --always)
+	docker push $(ECR_URL_DEV):$(shell echo $(CPU_ARCH) | cut -d'/' -f2)
 
 
 ### Terraform-generated manual shortcuts for deploying to Stage. This requires  ###
