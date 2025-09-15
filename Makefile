@@ -5,7 +5,7 @@ DATETIME:=$(shell date -u +%Y%m%dT%H%M%SZ)
 ###   and review the other commented lines in the document.               ###
 ECR_NAME_DEV := ecr-workflow-test-dev
 ECR_URL_DEV := 222053980223.dkr.ecr.us-east-1.amazonaws.com/ecr-workflow-test-dev
-CPU_ARCH ?= $(shell cat .aws-architecture)
+CPU_ARCH ?= $(shell cat .aws-architecture 2>/dev/null || echo "linux/amd64")
 ### End of Terraform-generated header                                     ###
 
 help: # Preview Makefile commands
@@ -81,16 +81,45 @@ my-app: # CLI without any arguments, utilizing uv script entrypoint
 
 
 ### Terraform-generated Developer Deploy Commands for Dev environment ###
-dist-dev: ## Build docker container (intended for developer-based manual build)
-	docker buildx create --use && docker buildx build --platform $(CPU_ARCH) \
-	    -t $(ECR_URL_DEV):latest \
-		-t $(ECR_URL_DEV):$(shell git describe --always) \
-		-t $(ECR_NAME_DEV):latest .
+check-arch:
+	@ARCH_FILE=".aws-architecture"; \
+	if [[ "$(CPU_ARCH)" != "linux/amd64" && "$(CPU_ARCH)" != "linux/arm64" ]]; then \
+        echo "Invalid CPU_ARCH: $(CPU_ARCH)"; exit 1; \
+    fi; \
+	if [[ -f $$ARCH_FILE ]]; then \
+		echo "latest-$(shell echo $(CPU_ARCH) | cut -d'/' -f2)" > .arch_tag; \
+	else \
+		echo "latest" > .arch_tag; \
+	fi
+
+dist-dev: check-arch ## Build docker container (intended for developer-based manual build
+	@ARCH_TAG=$$(cat .arch_tag); \
+	docker buildx inspect $(ECR_NAME_DEV) >/dev/null 2>&1 || docker buildx create --name $(ECR_NAME_DEV) --use; \
+	docker buildx use $(ECR_NAME_DEV); \
+	docker buildx build --platform $(CPU_ARCH) \
+	    --load \
+	    -t $(ECR_URL_DEV):make-$$ARCH_TAG \
+		-t $(ECR_URL_DEV):make-$(shell git describe --always) \
+		-t $(ECR_URL_DEV):make-$(shell echo $(CPU_ARCH) | cut -d'/' -f2) \
+		-t $(ECR_NAME_DEV):$$ARCH_TAG \
+		.
 
 publish-dev: dist-dev ## Build, tag and push (intended for developer-based manual publish)
-	docker login -u AWS -p $$(aws ecr get-login-password --region us-east-1) $(ECR_URL_DEV)
-	docker push $(ECR_URL_DEV):latest
-	docker push $(ECR_URL_DEV):$(shell git describe --always)
+	@ARCH_TAG=$$(cat .arch_tag); \
+	aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $(ECR_URL_DEV); \
+	docker push $(ECR_URL_DEV):make-$$ARCH_TAG; \
+	docker push $(ECR_URL_DEV):make-$(shell git describe --always); \
+	docker push $(ECR_URL_DEV):make-$(shell echo $(CPU_ARCH) | cut -d'/' -f2)
+
+docker-clean: ## Clean up Docker detritus
+	@ARCH_TAG=$$(cat .arch_tag); \
+	echo "Cleaning up Docker leftovers (containers, images, builders)"; \
+	docker rmi -f $(ECR_URL_DEV):make-$$ARCH_TAG; \
+	docker rmi -f $(ECR_URL_DEV):make-$(shell git describe --always) || true; \
+    docker rmi -f $(ECR_URL_DEV):make-$(shell echo $(CPU_ARCH) | cut -d'/' -f2) || true; \
+    docker rmi -f $(ECR_NAME_DEV):$$ARCH_TAG || true; \
+	docker buildx rm $(ECR_NAME_DEV) || true
+	@rm -rf .arch_tag
 
 
 ### Terraform-generated manual shortcuts for deploying to Stage. This requires  ###
