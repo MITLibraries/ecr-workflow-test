@@ -1,4 +1,4 @@
-### This is the Terraform-generated dev-build.yml workflow for the ecr-workflow-test-stage app repository ###
+### This is the Terraform-generated stage-build.yml workflow for the ecr-workflow-test app repository ###
 ### If this is a Lambda repo, uncomment the FUNCTION line at the end of the document     ###
 ### If the container requires any additional pre-build commands, uncomment and edit      ###
 ### the PREBUILD line at the end of the document.                                        ###
@@ -17,6 +17,7 @@ permissions:
 
 jobs:
   prep:
+    name: Prep for Build
     runs-on: ubuntu-latest
     outputs: 
       cpuarch: ${{ steps.setarch.outputs.cpuarch }}
@@ -44,7 +45,7 @@ jobs:
 
   deploy:
     needs: prep
-    name: Stage Container Deploy
+    name: Stage Deploy
     uses: mitlibraries/.github/.github/workflows/ecr-multi-arch-deploy-stage.yml@multi-arch-deploy
     secrets: inherit
     with:
