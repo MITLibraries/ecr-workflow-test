@@ -35,12 +35,12 @@
         },
         "sentry-sdk": {
             "hashes": [
-                "sha256:5ea58d352779ce45d17bc2fa71ec7185205295b83a9dbb5707273deb64720092",
-                "sha256:6e0c29b9a5d34de8575ffb04d289a987ff3053cf2c98ede445bea995e3830263"
+                "sha256:2324aea8573a3fa1576df7fb4d65c4eb8d9929c8fa5939647397a07179eef8d0",
+                "sha256:792d2af45e167e2f8a3347143f525b9b6bac6f058fb2014720b40b84ccbeb985"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.6'",
-            "version": "==2.35.0"
+            "version": "==2.38.0"
         },
         "urllib3": {
             "hashes": [
