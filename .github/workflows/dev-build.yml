@@ -1,4 +1,4 @@
-### This is the Terraform-generated dev-build.yml workflow for the ecr-workflow-test-dev app repository ###
+### This is the Terraform-generated dev-build.yml workflow for the ecr-workflow-test app repository ###
 ### If this is a Lambda repo, uncomment the FUNCTION line at the end of the document     ###
 ### If the container requires any additional pre-build commands, uncomment and edit      ###
 ### the PREBUILD line at the end of the document.                                        ###
@@ -28,7 +28,7 @@ jobs:
       - name: Set CPU Architecture
         id: setarch
         run: |
-          echo "### Architecture Selection" >> $GITHUB_STEP_SUMMARY
+          echo "### :abacus: Architecture Selection" >> $GITHUB_STEP_SUMMARY
           if [[ -f .aws-architecture ]]; then
             ARCH=$(cat .aws-architecture)
             echo "\`$ARCH\` was read from \`.aws-architecture\` and passed to the deploy job." >> $GITHUB_STEP_SUMMARY
