@@ -18,3 +18,4 @@ def test_cli_all_options(caplog, runner):
 
 
 # test comment
+# another test comment
