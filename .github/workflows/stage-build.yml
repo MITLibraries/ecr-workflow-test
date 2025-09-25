@@ -46,7 +46,7 @@ jobs:
   deploy:
     needs: prep
     name: Stage Deploy
-    uses: mitlibraries/.github/.github/workflows/ecr-multi-arch-deploy-stage.yml@multi-arch-deploy
+    uses: mitlibraries/.github/.github/workflows/ecr-multi-arch-deploy-stage.yml@main
     secrets: inherit
     with:
       AWS_REGION: "us-east-1"
