@@ -1,8 +1,8 @@
 SHELL=/bin/bash
 DATETIME:=$(shell date -u +%Y%m%dT%H%M%SZ)
 ### This is the Terraform-generated header for ecr-workflow-test-dev. If  ###
-###   this is a Lambda repo, uncomment the FUNCTION line below            ###
-###   and review the other commented lines in the document.               ###
+### this is a Lambda repo, uncomment the FUNCTION line below and review   ###
+### the other commented lines in the document.                            ###
 ECR_NAME_DEV := ecr-workflow-test-dev
 ECR_URL_DEV := 222053980223.dkr.ecr.us-east-1.amazonaws.com/ecr-workflow-test-dev
 CPU_ARCH ?= $(shell cat .aws-architecture 2>/dev/null || echo "linux/amd64")
@@ -92,16 +92,16 @@ check-arch:
 		echo "latest" > .arch_tag; \
 	fi
 
-dist-dev: check-arch ## Build docker container (intended for developer-based manual build
+dist-dev: check-arch ## Build docker container (intended for developer-based manual build)
 	@ARCH_TAG=$$(cat .arch_tag); \
 	docker buildx inspect $(ECR_NAME_DEV) >/dev/null 2>&1 || docker buildx create --name $(ECR_NAME_DEV) --use; \
 	docker buildx use $(ECR_NAME_DEV); \
 	docker buildx build --platform $(CPU_ARCH) \
-	    --load \
-	    -t $(ECR_URL_DEV):make-$$ARCH_TAG \
-		-t $(ECR_URL_DEV):make-$(shell git describe --always) \
-		-t $(ECR_URL_DEV):make-$(shell echo $(CPU_ARCH) | cut -d'/' -f2) \
-		-t $(ECR_NAME_DEV):$$ARCH_TAG \
+		--load \
+	    --tag $(ECR_URL_DEV):make-$$ARCH_TAG \
+		--tag $(ECR_URL_DEV):make-$(shell git describe --always) \
+		--tag $(ECR_URL_DEV):make-$(shell echo $(CPU_ARCH) | cut -d'/' -f2) \
+		--tag $(ECR_NAME_DEV):$$ARCH_TAG \
 		.
 
 publish-dev: dist-dev ## Build, tag and push (intended for developer-based manual publish)
@@ -121,23 +121,10 @@ docker-clean: ## Clean up Docker detritus
 	docker buildx rm $(ECR_NAME_DEV) || true
 	@rm -rf .arch_tag
 
-
-### Terraform-generated manual shortcuts for deploying to Stage. This requires  ###
-###   that ECR_NAME_STAGE, ECR_URL_STAGE, and FUNCTION_STAGE environment        ###
-###   variables are set locally by the developer and that the developer has     ###
-###   authenticated to the correct AWS Account. The values for the environment  ###
-###   variables can be found in the stage_build.yml caller workflow.            ###
-dist-stage: ## Only use in an emergency
-	docker buildx create --use && docker buildx build --platform $(CPU_ARCH) \
-	    -t $(ECR_URL_STAGE):latest \
-		-t $(ECR_URL_STAGE):$(shell git describe --always) \
-		-t $(ECR_NAME_STAGE):latest .
-
-publish-stage: ## Only use in an emergency
-	docker login -u AWS -p $$(aws ecr get-login-password --region us-east-1) $(ECR_URL_STAGE)
-	docker push $(ECR_URL_STAGE):latest
-	docker push $(ECR_URL_STAGE):$(shell git describe --always)
-
 ### If this is a Lambda repo, uncomment the two lines below     ###
-# update-lambda-stage: ## Updates the lambda with whatever is the most recent image in the ecr (intended for developer-based manual update)
-#	aws lambda update-function-code --function-name $(FUNCTION_STAGE) --image-uri $(ECR_URL_STAGE):latest
+# update-lambda-dev: ## Updates the lambda with whatever is the most recent image in the ecr (intended for developer-based manual update)
+#	@ARCH_TAG=$$(cat .arch_tag); \
+#	aws lambda update-function-code \
+#		--region us-east-1 \
+#		--function-name $(FUNCTION_DEV) \
+#		--image-uri $(ECR_URL_DEV):make-$$ARCH_TAG

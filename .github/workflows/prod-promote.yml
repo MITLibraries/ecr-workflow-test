@@ -41,7 +41,7 @@ jobs:
   deploy:
     needs: prep
     name: Deploy
-    uses: mitlibraries/.github/.github/workflows/ecr-multi-arch-promote-prod.yml@multi-arch-deploy
+    uses: mitlibraries/.github/.github/workflows/ecr-multi-arch-promote-prod.yml@main
     secrets: inherit
     with:
       AWS_REGION: "us-east-1"
