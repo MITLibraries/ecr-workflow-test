@@ -18,6 +18,8 @@ if [ -z "${GITHUB_SHA:-}" ]; then
   exit 1
 fi
 
+git log --pretty=oneline --no-abbrev-commit
+
 # Allow for a test diff for local testing
 if [ -n "${TEST_DIFF:-}" ]; then
   DIFF="$TEST_DIFF"
@@ -27,6 +29,9 @@ else
   echo ""
   echo "--HEAD_SHA--"
   echo "$HEAD_SHA"
+  echo ""
+  echo "-GITHUB_SHA--"
+  echo "$GITHUB_SHA"
   echo ""
   echo "--DEFAULT_BRANCH--"
   echo "$DEFAULT_BRANCH"
