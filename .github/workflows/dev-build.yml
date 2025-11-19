@@ -38,13 +38,15 @@ jobs:
           echo '${{ toJson(github) }}'
           echo "== event =="
           echo '${{ toJson(github.event) }}'
-          echo "== job =="
-          echo '${{ toJson(job) }}'
-          echo "== runner =="
-          echo '${{ toJson(runner) }}'
 
       - name: Dump dispatch inputs
         run: echo '${{ toJson(github.event.inputs) }}'
+
+      - name: Generate matrix
+        id: generate
+        run: |
+          chmod +x ./.github/scripts/generate-matrix.sh
+          ./.github/scripts/generate-matrix.sh
 
       - name: Set CPU Architecture
         id: setarch
@@ -64,15 +66,15 @@ jobs:
           fi
           echo "cpuarch=$ARCH" >> $GITHUB_OUTPUT
 
-  deploy:
-    needs: prep
-    name: Dev Deploy
-    uses: mitlibraries/.github/.github/workflows/ecr-multi-arch-deploy-dev.yml@main
-    secrets: inherit
-    with:
-      AWS_REGION: "us-east-1"
-      GHA_ROLE: "ecr-workflow-test-gha-dev"
-      ECR: "ecr-workflow-test-dev"
-      CPU_ARCH: ${{ needs.prep.outputs.cpuarch }}
-      # FUNCTION: ""
-      # PREBUILD:
+  # deploy:
+  #   needs: prep
+  #   name: Dev Deploy
+  #   uses: mitlibraries/.github/.github/workflows/ecr-multi-arch-deploy-dev.yml@main
+  #   secrets: inherit
+  #   with:
+  #     AWS_REGION: "us-east-1"
+  #     GHA_ROLE: "ecr-workflow-test-gha-dev"
+  #     ECR: "ecr-workflow-test-dev"
+  #     CPU_ARCH: ${{ needs.prep.outputs.cpuarch }}
+  #     # FUNCTION: ""
+  #     # PREBUILD:
