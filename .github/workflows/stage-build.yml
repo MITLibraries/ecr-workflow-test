@@ -4,7 +4,6 @@
 ### the PREBUILD line at the end of the document.                                        ###
 name: Stage Container Build and Deploy
 on:
-  workflow_dispatch:
   push:
     branches:
       - main
@@ -24,28 +23,19 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
-
-      # Temporary steps to dump env and context information
-      - name: Dump env
-        run: env | sort
-
-      - name: Dump GitHub contexts
-        run: |
-          echo "== github =="
-          echo '${{ toJson(github) }}'
-          echo "== event =="
-          echo '${{ toJson(github.event) }}'
-          echo "== job =="
-          echo '${{ toJson(job) }}'
-          echo "== runner =="
-          echo '${{ toJson(runner) }}'
+        with:
+          fetch-depth: 10
 
       - name: Generate matrix
         id: generate
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          BASE_SHA: ${{ github.event.before }}
+          HEAD_SHA: ${{ github.event.after }}
+          ACTION: "push"
         run: |
           chmod +x ./.github/scripts/generate-matrix.sh
           ./.github/scripts/generate-matrix.sh
-
 
       - name: Set CPU Architecture
         id: setarch
