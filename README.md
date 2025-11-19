@@ -2,6 +2,10 @@
 
 Just for testing the ECR shared workflows. This app doesn't need to do anything other than build via Docker.
 
+## Testing
+
+Trying to produce all the GHA context information for troubleshooting in other workflows.
+
 ## Development
 
 - To preview a list of available Makefile commands: `make help`
