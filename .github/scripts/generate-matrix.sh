@@ -36,7 +36,7 @@ else
   echo ""
 
   # Collect changed files/folders, filter out .github and docs
-  DIFF=$( git diff --dirstat=files,0,cumulative "$BASE_SHA" "$GITHUB_SHA" | awk -F ' ' '{print $2}' | grep -vE '(^.github)' || true )
+  DIFF=$( git diff --dirstat=files,0,cumulative "$BASE_SHA" "$HEAD_SHA" | awk -F ' ' '{print $2}' | grep -vE '(^.github)' || true )
   echo "--DIFF--"
   echo "$DIFF"
   echo ""
