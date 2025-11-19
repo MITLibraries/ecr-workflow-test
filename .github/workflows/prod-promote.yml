@@ -35,9 +35,6 @@ jobs:
           echo "== runner =="
           echo '${{ toJson(runner) }}'
 
-      - name: Dump dispatch inputs
-        run: echo '${{ toJson(github.event.inputs) }}''
-
       - name: Generate matrix
         id: generate
         run: |
